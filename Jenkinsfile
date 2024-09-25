@@ -77,7 +77,7 @@ pipeline {
         }
 
 
-        stage('Staging E2E') {
+        stage('Deploy staging') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -87,6 +87,7 @@ pipeline {
 
             environment {
                 CI_ENVIRONMENT_URL = 'STAGING_TO_BE_SET'
+            }
 
             steps {
                 sh '''
