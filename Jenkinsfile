@@ -4,11 +4,9 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = '2914dc2f-9c27-47da-8c73-fc2a48efd250'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
-        CI_ENVIRONMENT_URL = 'https://rainbow-druid-0e208d.netlify.app/'
     }
 
     stages {
-        
 
         stage('Build') {
             agent {
@@ -19,7 +17,6 @@ pipeline {
             }
             steps {
                 sh '''
-                    echo 'Small change'
                     ls -la
                     node --version
                     npm --version
@@ -29,7 +26,6 @@ pipeline {
                 '''
             }
         }
-        
 
         stage('Tests') {
             parallel {
@@ -54,7 +50,7 @@ pipeline {
                     }
                 }
 
-                /*stage('E2E') {
+                stage('E2E') {
                     agent {
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -76,11 +72,29 @@ pipeline {
                             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Local', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
-                }*/
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy staging') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build
+                '''
+            }
+        }
+
+        stage('Deploy prod') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -107,7 +121,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = 'https://rainbow-druid-0e208d.netlify.app'
+                CI_ENVIRONMENT_URL = '2914dc2f-9c27-47da-8c73-fc2a48efd250'
             }
 
             steps {
