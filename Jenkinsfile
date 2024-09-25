@@ -121,7 +121,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = '2914dc2f-9c27-47da-8c73-fc2a48efd250'
+                CI_ENVIRONMENT_URL = 'https://rainbow-druid-0e208d.netlify.app/'
             }
 
             steps {
